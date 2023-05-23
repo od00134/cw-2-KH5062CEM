@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+// Define the number of threads to create
+#define NUM_THREADS 5
+
+// Define the maximum number of times to increment the counter
+#define MAX_COUNT 1000000
+
+// Shared counter variable
+int sharedCounter = 0;
+
+// Mutex lock to protect the counter from concurrent access
+pthread_mutex_t mutexLock;
+
+// Function to increment the counter
+void* incrementCounter(void* threadId) {
+    long threadNum = (long)threadId;
+
+    // Increment the shared counter in a loop
+    for (int i = 0; i < MAX_COUNT; i++) {
+        // Acquire the lock to enter the critical section
+        pthread_mutex_lock(&mutexLock);
+        sharedCounter++; // Increment the shared counter
+        pthread_mutex_unlock(&mutexLock); // Release the lock to exit the critical section
+    }
+
+    // Print a message to indicate thread completion
+    printf("Thread %ld finished\n", threadNum);
+
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t threads[NUM_THREADS];
+    int returnCode;
+    long threadNum;
+
+    // Initialize the mutex lock
+    pthread_mutex_init(&mutexLock, NULL);
+
+    // Create multiple threads to increment the counter
+    for (threadNum = 0; threadNum < NUM_THREADS; threadNum++) {
+        returnCode = pthread_create(&threads[threadNum], NULL, incrementCounter, (void*)threadNum);
+        if (returnCode) {
+            printf("ERROR: return code from pthread_create() is %d\n", returnCode);
+            exit(-1);
+        }
+    }
+
+    // Wait for all threads to finish
+    for (threadNum = 0; threadNum < NUM_THREADS; threadNum++) {
+        pthread_join(threads[threadNum], NULL);
+    }
+
+    // Print the final value of the counter
+    printf("\nCounter value: %d\n\n", sharedCounter);
+
+    // Destroy the mutex lock
+    pthread_mutex_destroy(&mutexLock);
+
+    pthread_exit(NULL);
+}

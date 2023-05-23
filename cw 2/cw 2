@@ -1,0 +1,26 @@
+The provided code demonstrates how to handle concurrent access to a shared resource using mutex locks in the C programming language. It ensures that multiple threads can increment a shared counter safely by acquiring and releasing a mutex lock around the critical section. Here's an overview of how it works:
+
+The code defines the number of threads (NUM_THREADS) and the maximum count for the counter (MAX_COUNT).
+A global variable counter is declared to represent the shared counter.
+A mutex lock mutex is initialized to protect the counter from concurrent access.
+Each thread executes the increment_counter function, responsible for incrementing the shared counter.
+Inside increment_counter, a thread acquires the lock using pthread_mutex_lock to enter the critical section.
+The thread increments the counter by one and releases the lock using pthread_mutex_unlock to exit the critical section.
+This process is repeated MAX_COUNT times for each thread.
+Once a thread finishes its task, it prints a message indicating its completion.
+In the main function, threads are created using pthread_create, and pthread_join is used to wait for their completion.
+After all threads have finished, the final value of the counter is printed.
+The mutex lock is destroyed using pthread_mutex_destroy.
+To execute the code, follow these steps:
+
+Compile the code:
+
+   ```bash
+   gcc -o concurrency concurrency.c -pthread
+   ```
+
+   Execute the program:
+
+   ```bash
+   ./concurrency
+   ```
